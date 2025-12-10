@@ -94,7 +94,7 @@ describe('useCart', () => {
     add(mockAlbum1) // 9.99
     add(mockAlbum2) // 12.99
     
-    expect(total.value).toBe(32.97)
+    expect(total.value).toBe(parseFloat((9.99 * 2 + 12.99).toFixed(2)))
   })
 
   it('should remove album from cart (decrement quantity)', () => {
@@ -133,26 +133,23 @@ describe('useCart', () => {
     expect(count.value).toBe(0)
   })
 
-  it('should persist cart to localStorage', () => {
+  it('should persist cart to localStorage', async () => {
     const { add } = useCart()
     
     add(mockAlbum1)
     
     // Wait for next tick to allow watcher to run
-    return new Promise(resolve => {
-      setTimeout(() => {
-        const stored = localStorageMock.getItem('album-cart')
-        expect(stored).not.toBeNull()
-        
-        if (stored) {
-          const parsed = JSON.parse(stored)
-          expect(parsed.length).toBe(1)
-          expect(parsed[0].album.id).toBe(1)
-          expect(parsed[0].qty).toBe(1)
-        }
-        resolve(undefined)
-      }, 100)
-    })
+    await new Promise(resolve => setTimeout(resolve, 0))
+    
+    const stored = localStorageMock.getItem('album-cart')
+    expect(stored).not.toBeNull()
+    
+    if (stored) {
+      const parsed = JSON.parse(stored)
+      expect(parsed.length).toBe(1)
+      expect(parsed[0].album.id).toBe(1)
+      expect(parsed[0].qty).toBe(1)
+    }
   })
 
   it('should load cart from localStorage on init', () => {
